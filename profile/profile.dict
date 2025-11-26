@@ -1,8 +1,8 @@
 {
     "theme": "dark",
     "language": "en_US",
-    "code_font_face": "Courier",
-    "code_font_size": 10,
+    "code_font_face": "JetBrains Mono",
+    "code_font_size": 16,
     "min_adr_len": 2,
     "max_jmps": 8192,
     "max_cels": 8192,

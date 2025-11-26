@@ -2,7 +2,7 @@
     "info": {
         "name":    "English (United States)",
         "version": "1.0",
-        "authors": ["Blyfh"]
+        "authors": ["Blyfh","Etienne Seet"]
     },
     "file_mng": {
         "AsmFiles": "Assembler files",

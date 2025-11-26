@@ -2,7 +2,7 @@
     "info": {
         "name":    "Deutsch (Deutschland)",
         "version": "1.0",
-        "authors": ["Blyfh"]
+        "authors": ["Blyfh", "Etienne Seet"]
     },
     "file_mng": {
         "AsmFiles": "Assembler-Dateien",
@@ -119,6 +119,7 @@ Eine Liste aller akzeptierten Befehle:
     {MUL #n } speichert das Produkt der Zahlenwerte des AKKUs und n in den AKKU
     {MUL (n)} speichert das Produkt der Zahlenwerte des AKKUs und der Speicherzelle, dessen Adresse in Speicherzelle n gespeichert
     {       } ist, in den AKKU
+    {DIV n  } 
     {JMP n  } springt zu Speicherzelle n indem der BZ auf n gesetzt wird
     {JZE n  } springt zu Speicherzelle n indem der BZ auf n gesetzt wird wenn der im AKKU gespeicherte Zahlenwert 0 ist
     {JLE n  } springt zu Speicherzelle n indem der BZ auf n gesetzt wird wenn der im AKKU gespeicherte Zahlenwert kleiner oder gleich

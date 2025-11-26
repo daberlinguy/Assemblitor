@@ -48,9 +48,11 @@ class OutCodeBlock(CodeBlock):
     def __init__(self, root, editor):
         super().__init__(root, editor)
         self.TXT.tag_config("code", foreground=self.ed.theme_text_fg)  # "fg" is an invalid argument
+        self.TXT.tag_config("comment", foreground="#228B22")  # Dark green for comments
         # used by step-by-step mode to highlight the current code line that the PC points to
         self.TXT.tag_config("active_code", foreground=self.ed.theme_accent_color)
         self.TXT.tag_config("error", foreground=self.ed.theme_error_color, wrap="word")
+        self.error_expanded = False
         self.TXT.config(state="disabled")
     
     def append_text(self, text, tag):
@@ -65,17 +67,77 @@ class OutCodeBlock(CodeBlock):
     
     def display_output(self, code_section1, active_code, code_section2):
         self.clear_text()
-        self.append_text(code_section1, "code")
+        self.error_expanded = False
+        self.append_text_with_comments(code_section1, "code")
         if active_code:
-            self.append_text(active_code, "active_code")
+            self.append_text_with_comments(active_code, "active_code")
             self.TXT.yview_moveto(1)  # jumps to current command
-        self.append_text(code_section2, "code")
+        self.append_text_with_comments(code_section2, "code")
+    
+    def append_text_with_comments(self, text, tag):
+        """Append text and highlight comments in dark green"""
+        self.TXT.config(state="normal")
+        lines = text.split('\n')
+        for i, line in enumerate(lines):
+            if i > 0:
+                self.TXT.insert("insert", "\n", tag)
+            
+            # Split line at comment marker (;)
+            if ';' in line:
+                parts = line.split(';', 1)
+                code_part = parts[0]
+                comment_part = ';' + parts[1]
+                
+                # Insert code part with original tag
+                self.TXT.insert("insert", code_part, tag)
+                # Insert comment part with comment tag
+                self.TXT.insert("insert", comment_part, "comment")
+            else:
+                # No comment, insert whole line
+                self.TXT.insert("insert", line, tag)
+        
+        self.TXT.config(state="disabled")
     
     def display_error(self, exception_message, prg_state=None):
         self.clear_text()
-        self.append_text(exception_message, "error")
-        if prg_state:
-            self.append_text(prg_state, "code")
+        self.error_expanded = False
+        # Split error message to show only first line initially
+        error_lines = exception_message.split('\n')
+        first_line = error_lines[0] if error_lines else exception_message
+        remaining_lines = '\n'.join(error_lines[1:]) if len(error_lines) > 1 else ""
+        
+        # Show first line with expandable indicator
+        self.append_text("▶ " + first_line, "error")
+        
+        # Store remaining error and program state for expansion
+        self.error_details = (remaining_lines, prg_state)
+        
+        # Bind click to expand/collapse
+        self.TXT.tag_bind("error", "<Button-1>", self.toggle_error_expansion)
+    
+    def toggle_error_expansion(self, event=None):
+        if not hasattr(self, 'error_details'):
+            return
+        
+        self.TXT.config(state="normal")
+        
+        if self.error_expanded:
+            # Collapse: remove details
+            self.TXT.delete("1.0", "end")
+            first_line = self.error_details[0].split('\n')[0] if self.error_details[0] else ""
+            self.append_text("▶ " + first_line, "error")
+            self.error_expanded = False
+        else:
+            # Expand: show full error and program state
+            self.TXT.delete("1.0", "end")
+            remaining_lines, prg_state = self.error_details
+            first_line = self.TXT.get("1.0", "1.end")
+            self.append_text("▼ " + remaining_lines, "error")
+            if prg_state:
+                self.append_text("\n\n" + prg_state, "code")
+            self.error_expanded = True
+        
+        self.TXT.config(state="disabled")
 
 
 class InpCodeBlock(CodeBlock):
@@ -83,6 +145,9 @@ class InpCodeBlock(CodeBlock):
     def __init__(self, root, editor):
         super().__init__(root, editor, undo=True)
         self.already_modified = False
+        
+        # Configure comment tag with dark green color
+        self.TXT.tag_config("comment", foreground="#228B22")  # Dark green
         
         # events
         
@@ -100,6 +165,9 @@ class InpCodeBlock(CodeBlock):
         self.TXT.bind(sequence="<Key>", func=lambda event: self.on_key_pressed())
         # 'add' keyword necessary because CodeBlock already uses bind "<<Modified>>"
         self.TXT.bind(sequence="<<Modified>>", func=lambda event: self.on_inp_modified(), add="+")
+        # Detect line deletions
+        self.TXT.bind(sequence="<BackSpace>", func=lambda event: self.on_backspace())
+        self.TXT.bind(sequence="<Delete>", func=lambda event: self.on_delete())
     
     def redo(self):
         try:
@@ -129,7 +197,32 @@ class InpCodeBlock(CodeBlock):
             return
         whitespace_wrapping = last_line.split(last_line_stripped)[0]
         new_adr = emu.add_leading_zeros(str(last_adr + 1))
+        # insert new line with incremented address
         self.TXT.insert("insert", "\n" + whitespace_wrapping + new_adr + " ")
+
+        # Now shift all following addresses by +1 to avoid duplicates
+        try:
+            # current line index (the newly inserted line)
+            cur_line = int(self.TXT.index("insert").split('.')[0])
+            last_line_index = int(self.TXT.index("end-1c").split('.')[0])
+            # iterate over following lines (cur_line+1 .. last_line_index)
+            for ln in range(cur_line + 1, last_line_index + 1):
+                line_start = f"{ln}.0"
+                line_end = f"{ln}.end"
+                line = self.TXT.get(line_start, line_end)
+                if not line.strip():
+                    continue
+                cell, comment = emu.split_cell_at_comment(line)
+                if cell.strip():
+                    new_cell = self.change_adr(cell, 1)
+                    # only rewrite if address actually changed
+                    if new_cell != cell:
+                        # replace the whole line content
+                        self.TXT.delete(line_start, line_end)
+                        self.TXT.insert(line_start, new_cell + comment)
+        except Exception:
+            # keep silent on any unexpected error to not break typing
+            pass
     
     def delete_word(self):
         if self.TXT.index("insert") != "1.0":  # to prevent deleting word after cursor on position 0
@@ -154,6 +247,57 @@ class InpCodeBlock(CodeBlock):
             self.already_modified = True
         else:
             self.already_modified = False
+    
+    def on_backspace(self):
+        """Handle backspace to detect line deletion and shift addresses down"""
+        # Check if we're at the beginning of a line (deleting the newline)
+        cur_pos = self.TXT.index("insert")
+        cur_line = int(cur_pos.split('.')[0])
+        cur_col = int(cur_pos.split('.')[1])
+        
+        # If at column 0, we're about to delete the newline from previous line
+        if cur_col == 0 and cur_line > 1:
+            self.shift_addresses_on_delete(cur_line)
+        
+        return None  # Let the default backspace behavior happen
+    
+    def on_delete(self):
+        """Handle delete key to detect line deletion and shift addresses down"""
+        cur_pos = self.TXT.index("insert")
+        cur_line = int(cur_pos.split('.')[0])
+        line_content = self.TXT.get(f"{cur_line}.0", f"{cur_line}.end")
+        
+        # If at end of line and about to delete newline
+        if self.TXT.index("insert") == f"{cur_line}.{len(line_content)}":
+            self.shift_addresses_on_delete(cur_line + 1)
+        
+        return None  # Let the default delete behavior happen
+    
+    def shift_addresses_on_delete(self, deleted_line):
+        """Shift all addresses after deleted line down by -1"""
+        try:
+            last_line_index = int(self.TXT.index("end-1c").split('.')[0])
+            
+            # Shift all lines after the deleted line
+            for ln in range(deleted_line, last_line_index + 1):
+                line_start = f"{ln}.0"
+                line_end = f"{ln}.end"
+                line = self.TXT.get(line_start, line_end)
+                
+                if not line.strip():
+                    continue
+                
+                cell, comment = emu.split_cell_at_comment(line)
+                if cell.strip():
+                    # Decrement address by 1
+                    new_cell = self.change_adr(cell, -1)
+                    # Only rewrite if address actually changed
+                    if new_cell != cell:
+                        self.TXT.delete(line_start, line_end)
+                        self.TXT.insert(line_start, new_cell + comment)
+        except Exception:
+            # Keep silent on any unexpected error to not break deletion
+            pass
     
     def increment_selected_text(self):
         self.change_selected_text(change=int(self.ed.chng_SBX.gt()))
@@ -254,6 +398,23 @@ class InpCodeBlock(CodeBlock):
     def st_input(self, inp_str: str):
         self.TXT.delete("1.0", "end")
         self.TXT.insert("insert", inp_str)
+        # Highlight all comments in the input
+        self.highlight_comments()
+    
+    def highlight_comments(self):
+        """Scan entire text and apply comment tag to all comments (lines starting with ;)"""
+        self.TXT.tag_remove("comment", "1.0", "end")
+        content = self.TXT.get("1.0", "end-1c")
+        lines = content.split('\n')
+        
+        for line_num, line in enumerate(lines, 1):
+            if ';' in line:
+                # Find the position of the comment marker
+                comment_start = line.find(';')
+                # Calculate the index: line_num.comment_start
+                start_idx = f"{line_num}.{comment_start}"
+                end_idx = f"{line_num}.end"
+                self.TXT.tag_add("comment", start_idx, end_idx)
 
 
 # UNIVERSAL WIDGETS
