@@ -16,8 +16,25 @@ from program.source import PackHandler as pck
 #     (See accompanying file LICENSE_1_0.txt or copy at
 #           http://www.boost.org/LICENSE_1_0.txt)
 
+"""
+Traceback (most recent call last):
+  File "/home/eti/Dokumente/code/git/Assemblitor/Assemblitor.pyw", line 54, in <module>
+    from program.source import Editor
+  File "/home/eti/Dokumente/code/git/Assemblitor/program/source/Editor.py", line 20, in <module>
+    ctypes.windll.shcore.SetProcessDpiAwareness(True)
+    ^^^^^^^^^^^^^
+AttributeError: module 'ctypes' has no attribute 'windll'
+"""
+# Fix for Linux AttributeError: module 'ctypes' has no attribute 'windll'
+import sys
+import ctypes
 
-ctypes.windll.shcore.SetProcessDpiAwareness(True)
+# Only run on Windows
+if sys.platform == "win32":
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)  # or True
+    except Exception:
+        pass
 
 ph: pck.ProfileHandler
 lh: pck.LangHandler
