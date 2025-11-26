@@ -8,5 +8,6 @@
     "max_cels": 8192,
     "closing_unsaved": "ask",
     "last_dir": "",
-    "dev_mode": True
+    "dev_mode": True,
+    "auto_shift_addresses": True
 }

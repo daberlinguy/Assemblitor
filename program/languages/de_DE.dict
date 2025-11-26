@@ -60,6 +60,8 @@
         "MinAdrLen": "Mindestanzahl an Ziffern",
         "MaxCels":   "Maximale Programmlänge",
         "MaxJmps":   "Maximale Iterationstiefe",
+        "AutoShiftAddresses": "Adressen beim Einfügen/Löschen automatisch verschieben",
+        "AutoShiftAddressesTip": "Folgende Adressen werden automatisch angepasst beim Einfügen oder Löschen von Zeilen",
 
         "File":                  "Datei",
         "ClosingUnsaved":        "Beim Schließen von ungespeichertem Programm",
@@ -119,11 +121,15 @@ Eine Liste aller akzeptierten Befehle:
     {MUL #n } speichert das Produkt der Zahlenwerte des AKKUs und n in den AKKU
     {MUL (n)} speichert das Produkt der Zahlenwerte des AKKUs und der Speicherzelle, dessen Adresse in Speicherzelle n gespeichert
     {       } ist, in den AKKU
-    {DIV n  } 
+    {DIV n  } speichert das Ergebnis der Ganzzahldivision des AKKUs durch den Zahlenwert der Speicherzelle n in den AKKU
+    {DIV #n } speichert das Ergebnis der Ganzzahldivision des AKKUs durch n in den AKKU
+    {DIV (n)} speichert das Ergebnis der Ganzzahldivision des AKKUs durch den Zahlenwert der Speicherzelle, dessen Adresse in Speicherzelle n gespeichert
+    {       } ist, in den AKKU
     {JMP n  } springt zu Speicherzelle n indem der BZ auf n gesetzt wird
     {JZE n  } springt zu Speicherzelle n indem der BZ auf n gesetzt wird wenn der im AKKU gespeicherte Zahlenwert 0 ist
     {JLE n  } springt zu Speicherzelle n indem der BZ auf n gesetzt wird wenn der im AKKU gespeicherte Zahlenwert kleiner oder gleich
-    {       } 0 ist"""
+    {       } 0 ist
+    {JNZ n  } springt zu Speicherzelle n indem der BZ auf n gesetzt wird wenn der im AKKU gespeicherte Zahlenwert nicht 0 ist"""
     },
     "shc_win": {
         "title":    "Tastenkombinationen",

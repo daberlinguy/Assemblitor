@@ -184,45 +184,34 @@ class InpCodeBlock(CodeBlock):
         self.TXT.see("insert")  # jump to cursor pos if it gets out of sight (due to newline)
         return "break"  # overwrites excessive newline printing
     
+    def is_auto_shift_enabled(self):
+        """Check if auto-shift-addresses is enabled in profile"""
+        try:
+            from program.source import Editor as ed_module
+            return ed_module.ph.auto_shift_addresses()
+        except:
+            return True  # default to enabled if we can't access profile
+    
     def insert_address(self):
-        last_line = self.TXT.get("insert linestart", "insert")
-        last_line_stripped = last_line.lstrip()
-        if last_line_stripped == "":  # empty cell (extra check since split() returns empty list without index 0)
+        # Only shift addresses if auto-shift is enabled
+        if not self.is_auto_shift_enabled():
             self.TXT.insert("insert", "\n")
             return
-        try:
-            last_adr = int(last_line_stripped.split()[0])
-        except ValueError:
-            self.TXT.insert("insert", "\n")
-            return
-        whitespace_wrapping = last_line.split(last_line_stripped)[0]
-        new_adr = emu.add_leading_zeros(str(last_adr + 1))
-        # insert new line with incremented address
-        self.TXT.insert("insert", "\n" + whitespace_wrapping + new_adr + " ")
 
-        # Now shift all following addresses by +1 to avoid duplicates
+        # Get the current line content
+        current_line = self.TXT.get("insert linestart", "insert lineend")
+
+        # Extract the last address and increment it
         try:
-            # current line index (the newly inserted line)
-            cur_line = int(self.TXT.index("insert").split('.')[0])
-            last_line_index = int(self.TXT.index("end-1c").split('.')[0])
-            # iterate over following lines (cur_line+1 .. last_line_index)
-            for ln in range(cur_line + 1, last_line_index + 1):
-                line_start = f"{ln}.0"
-                line_end = f"{ln}.end"
-                line = self.TXT.get(line_start, line_end)
-                if not line.strip():
-                    continue
-                cell, comment = emu.split_cell_at_comment(line)
-                if cell.strip():
-                    new_cell = self.change_adr(cell, 1)
-                    # only rewrite if address actually changed
-                    if new_cell != cell:
-                        # replace the whole line content
-                        self.TXT.delete(line_start, line_end)
-                        self.TXT.insert(line_start, new_cell + comment)
-        except Exception:
-            # keep silent on any unexpected error to not break typing
-            pass
+            last_address = int(current_line.strip())
+            next_address = f"{last_address + 1:02}"
+        except ValueError:
+            # If the line doesn't contain a valid address, just insert a newline
+            self.TXT.insert("insert", "\n")
+            return
+
+        # Insert the next address and a newline
+        self.TXT.insert("insert", f"\n{next_address}")
     
     def delete_word(self):
         if self.TXT.index("insert") != "1.0":  # to prevent deleting word after cursor on position 0
@@ -244,12 +233,18 @@ class InpCodeBlock(CodeBlock):
                 self.ed.set_dirty_flag(False)
             else:
                 self.ed.set_dirty_flag(True)
+            # Highlight comments in real-time
+            self.highlight_comments()
             self.already_modified = True
         else:
             self.already_modified = False
     
     def on_backspace(self):
         """Handle backspace to detect line deletion and shift addresses down"""
+        # Check if auto-shift is enabled
+        if not self.is_auto_shift_enabled():
+            return None
+        
         # Check if we're at the beginning of a line (deleting the newline)
         cur_pos = self.TXT.index("insert")
         cur_line = int(cur_pos.split('.')[0])
@@ -263,6 +258,10 @@ class InpCodeBlock(CodeBlock):
     
     def on_delete(self):
         """Handle delete key to detect line deletion and shift addresses down"""
+        # Check if auto-shift is enabled
+        if not self.is_auto_shift_enabled():
+            return None
+        
         cur_pos = self.TXT.index("insert")
         cur_line = int(cur_pos.split('.')[0])
         line_content = self.TXT.get(f"{cur_line}.0", f"{cur_line}.end")

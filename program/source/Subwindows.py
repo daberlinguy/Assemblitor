@@ -83,6 +83,7 @@ class Options(Subwindow):
         self.min_adr_len_VAR     = tk.IntVar()
         self.max_cels_VAR        = tk.IntVar()
         self.max_jmps_VAR        = tk.IntVar()
+        self.auto_shift_addresses_VAR = tk.BooleanVar()
         self.closing_unsaved_VAR = tk.StringVar()
         self.dev_mode_VAR        = tk.BooleanVar()
         self.set_option_vars()
@@ -94,6 +95,7 @@ class Options(Subwindow):
             "min_adr_len":     self.min_adr_len_VAR.get(),
             "max_cels":        self.max_cels_VAR.get(),
             "max_jmps":        self.max_jmps_VAR.get(),
+            "auto_shift_addresses": self.auto_shift_addresses_VAR.get(),
             "closing_unsaved": ph.closing_unsaved(),
             "dev_mode":        self.dev_mode_VAR.get()
         }
@@ -165,6 +167,14 @@ class Options(Subwindow):
         self.max_jmps_LBL = ttk.Label(self.max_jmps_FRM, style="TLabel", text=lh.opt_win("MaxJmps"))
         self.max_jmps_SBX = wdg.Spinbox(self.max_jmps_FRM, self.subroot, textvariable=self.max_jmps_VAR, min=1,
                                         max=1048576, default=self.max_jmps_VAR.get(), threshold=1, height=23)
+        self.auto_shift_addresses_CHB = ttk.Checkbutton(self.options_FRM, style="embedded.TCheckbutton",
+                                                       text=lh.opt_win("AutoShiftAddresses"),
+                                                       variable=self.auto_shift_addresses_VAR, onvalue=True,
+                                                       offvalue=False)
+        if not self.auto_shift_addresses_VAR.get():
+            self.auto_shift_addresses_CHB.state(["!alternate"])
+        self.auto_shift_addresses_TIP = wdg.Tooltip(self.auto_shift_addresses_CHB,
+                                                   text=lh.opt_win("AutoShiftAddressesTip"))
         self.seperator1_FRM.pack(anchor="center", fill="x", pady=5, padx=10)
         self.assembler_subtitle_LBL.pack(fill="x", pady=5, padx=10)
         self.min_adr_len_FRM.pack(fill="x",             padx=(20, 5))
@@ -176,6 +186,7 @@ class Options(Subwindow):
         self.max_jmps_FRM   .pack(fill="x",     padx=(20, 5))
         self.max_jmps_LBL   .pack(side="left",  pady=5, padx=(0, 15))
         self.max_jmps_SBX   .pack(side="right", pady=5, padx=5)
+        self.auto_shift_addresses_CHB.pack(fill="x", pady=5, padx=(20, 5))
         
         # File
         
@@ -241,6 +252,7 @@ class Options(Subwindow):
         self.min_adr_len_VAR    .set(value=ph.min_adr_len())
         self.max_cels_VAR       .set(value=ph.max_cels())
         self.max_jmps_VAR       .set(value=ph.max_jmps())
+        self.auto_shift_addresses_VAR.set(value=ph.auto_shift_addresses())
         # has language dependent displaytext
         self.closing_unsaved_VAR.set(value=lh.opt_win("ClosingUnsavedOptions")[ph.closing_unsaved()])
         self.dev_mode_VAR       .set(value=ph.dev_mode())
@@ -320,6 +332,10 @@ class Options(Subwindow):
     def save_option_max_jmps(self):
         emu.update_properties()
     
+    def save_option_auto_shift_addresses(self):
+        # Update emulator or other components if needed
+        emu.update_properties()
+
     def save_option_closing_unsaved(self):
         self.ed.action_on_closing_unsaved_prg = self.current_state("closing_unsaved")
     

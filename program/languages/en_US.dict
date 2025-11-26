@@ -60,6 +60,8 @@
         "MinAdrLen": "Minimum number of digits",
         "MaxCels":   "Maximum program length",
         "MaxJmps":   "Maximum iteration depth",
+        "AutoShiftAddresses": "Auto-shift addresses on insert/delete",
+        "AutoShiftAddressesTip": "Automatically adjust following addresses when inserting or deleting lines",
 
         "File":                  "File",
         "ClosingUnsaved":        "Action on closing unsaved program",
@@ -119,9 +121,14 @@ A list of all accepted commands:
     {MUL #n } multiplies the value n by the value of the ACC and stores the result into the ACC
     {MUL (n)} multiplies the value of the MC that has the address that is stored in MC n by the value of the
     {       } ACC and stores the result into the ACC
+    {DIV n  } divides the value of the ACC by the value at MC n (integer division) and stores the result into the ACC
+    {DIV #n } divides the value of the ACC by the value n (integer division) and stores the result into the ACC
+    {DIV (n)} divides the value of the ACC by the value of the MC that has the address that is stored in MC n (integer division) and
+    {       } stores the result into the ACC
     {JMP n  } jumps to MC n by setting the PC to n
     {JZE n  } jumps to MC n by setting the PC to n if the value of the ACC is equal to zero
-    {JLE n  } jumps to MC n by setting the PC to n if the value of the ACC is less than or equal to zero"""
+    {JLE n  } jumps to MC n by setting the PC to n if the value of the ACC is less than or equal to zero
+    {JNZ n  } jumps to MC n by setting the PC to n if the value of the ACC is not equal to zero"""
     },
     "shc_win": {
         "title":    "Shortcuts",

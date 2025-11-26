@@ -82,7 +82,9 @@ class ProfileHandler:
         profile_data = ph.gt_pack_data("profile", f"{self.profile_dir}")
         try:
             return profile_data[key]
-        except:
+        except KeyError:
+            if key == "auto_shift_addresses":
+                return False  # Default value for auto_shift_addresses
             raise FileNotFoundError(f"Couldn't fetch profile data for '{key}'.")
     
     def theme(self):
@@ -115,6 +117,9 @@ class ProfileHandler:
     
     def closing_unsaved(self):
         return self.gt_value("closing_unsaved")
+    
+    def auto_shift_addresses(self):
+        return self.gt_value("auto_shift_addresses")
     
     def dev_mode(self):
         return self.gt_value("dev_mode")
