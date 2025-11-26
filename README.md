@@ -103,6 +103,17 @@ the spinbox and which numbers it should affect with the option menu.
 | `Ctrl + S`            | Save file                  |
 | `Ctrl + Shift + S`    | Save file as               |
 
+## New Features
+
+### Auto-Shift Addresses
+- Added an option to automatically shift addresses when pressing Enter in the editor.
+- This feature ensures that the next address is inserted automatically, maintaining sequential order.
+- Can be toggled on or off in the options screen.
+
+### Comment Highlighting
+- Comments (text after a semicolon `;`) are now highlighted in dark green in real-time.
+- Enhances readability and makes it easier to distinguish comments from code.
+
 # Known Bugs
 
 *See "todo.md"*
