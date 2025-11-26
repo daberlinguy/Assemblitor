@@ -114,8 +114,8 @@ class Editor:
         self.change_options_VAR = tk.StringVar()
         self.active_theme = ph.theme()  # won't change without restart
         self.active_language = ph.language()  # won't change without restart
-        self.title_font    = ("Segoe", 15, "bold")
-        self.subtitle_font = ("Segoe", 13)
+        self.title_font    = ("DejaVu Sans", 15, "bold")
+        self.subtitle_font = ("DejaVu Sans", 13)
         self.set_theme(theme=self.active_theme)
         self.options_SUB = sub.Options(    editor=self)
         self.shortcuts_SUB = sub.Shortcuts(editor=self)

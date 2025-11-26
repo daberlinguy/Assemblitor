@@ -383,14 +383,31 @@ class Token:
             # address
             try:
                 tok_int = int(tok.lstrip())  # allow whitespaces before address
-            except:
-                raise Exception(eh.error("AdrTokNotInt", tok=tok))
+            except Exception:
+                # try to obtain a formatted error, but fall back to a plain Exception message
+                try:
+                    err = eh.error("AdrTokNotInt", tok=tok)
+                except Exception:
+                    raise Exception(f"Address token is not an integer: {tok!r}")
+                else:
+                    if isinstance(err, Exception):
+                        raise err
+                    else:
+                        raise Exception(err)
             if tok_int >= 0:
                 self.type = 0
                 self.cpos = tok_int
                 return tok_int
             else:
-                raise Exception(eh.error("AdrTokIsNegative", tok=tok))
+                try:
+                    err = eh.error("AdrTokIsNegative", tok=tok)
+                except Exception:
+                    raise Exception(f"Address token is negative: {tok!r}")
+                else:
+                    if isinstance(err, Exception):
+                        raise err
+                    else:
+                        raise Exception(err)
         elif self.tpos == 1:
             # value or command
             try:
@@ -403,7 +420,16 @@ class Token:
                     self.type = 1
                     return tok.upper()
                 else:
-                    raise Exception(eh.error("TokNotValOrCmd", adr=self.cpos, tok=tok))
+                    # attempt to get a formatted error from eh.error, but fall back to a plain message
+                    try:
+                        err = eh.error("TokNotValOrCmd", adr=self.cpos, tok=tok)
+                    except Exception:
+                        raise Exception(f"Expected a command or a value in memory cell {self.cpos}, not {tok!r}")
+                    else:
+                        if isinstance(err, Exception):
+                            raise err
+                        else:
+                            raise Exception(err)
             else:
                 self.type = 2
                 return tok_int
@@ -412,7 +438,15 @@ class Token:
             self.type = 3
             return Operand(tok, self.cpos)
         else:
-            raise Exception(eh.error("MaxCelLength", adr = self.cpos))
+            try:
+                err = eh.error("MaxCelLength", adr = self.cpos)
+            except Exception:
+                raise Exception(f"Maximum cell length exceeded at address {self.cpos}")
+            else:
+                if isinstance(err, Exception):
+                    raise err
+                else:
+                    raise Exception(err)
     
     def add_leading_zeros(self):
         if self.type == 0:
