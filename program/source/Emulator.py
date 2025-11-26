@@ -7,8 +7,8 @@ import string
 #           http://www.boost.org/LICENSE_1_0.txt)
 
 
-CMDS = "STP", "ADD", "SUB", "MUL", "LDA", "STA", "JMP", "JLE", "JZE"
-CMDS_no_val_opr = "STA", "JMP", "JLE", "JZE"
+CMDS = "STP", "ADD", "SUB", "MUL", "DIV", "LDA", "STA", "JMP", "JLE", "JZE", "JNZ"
+CMDS_no_val_opr = "STA", "JMP", "JLE", "JZE", "JNZ"
 MIN_ADR_LEN = 0
 MAX_JMPS = 0
 MAX_CELS = 0
@@ -252,6 +252,12 @@ class Program:
     def cmd_MUL(self, opr):
         self.accu *= self.gt_final_value(opr)
     
+    def cmd_DIV(self, opr):
+        divisor = self.gt_final_value(opr)
+        if divisor == 0:
+            raise Exception(eh.error("DivByZero", adr=self.pc))
+        self.accu //= divisor  # integer division
+    
     def cmd_LDA(self, opr):
         self.accu = self.gt_final_value(opr)
     
@@ -273,6 +279,10 @@ class Program:
     
     def cmd_JZE(self, opr):
         if self.accu == 0:
+            self.cmd_JMP(opr)
+
+    def cmd_JNZ(self, opr):
+        if self.accu != 0:
             self.cmd_JMP(opr)
 
 
