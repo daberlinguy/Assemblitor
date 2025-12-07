@@ -1,0 +1,41 @@
+{
+    "theme": "dark",
+    "language": "en_US",
+    "code_font_face": "JetBrains Mono",
+    "code_font_size": 16,
+    "min_adr_len": 2,
+    "max_jmps": 8192,
+    "max_cels": 8192,
+    "closing_unsaved": "ask",
+    "last_dir": "",
+    "dev_mode": True,
+    "auto_shift_addresses": False,
+    "colors": {
+        "light": {
+            "base_bg": "#DDDDDD",
+            "base_fg": "#444444",
+            "text_bg": "#FFFFFF",
+            "text_fg": "#000000",
+            "cursor_color": "#222222",
+            "error_color": "#FF2222",
+            "accent_color": "#00CC00",
+            "highlight_base_bg": "#BBBBFF",
+            "highlight_text_bg": "#CCCCFF",
+            "highlight_text_fg": "#000000",
+            "comment_color": "#777777"
+        },
+        "dark": {
+            "base_bg": "#222222",
+            "base_fg": "#444444",
+            "text_bg": "#333333",
+            "text_fg": "#FFFFFF",
+            "cursor_color": "#AAAAAA",
+            "error_color": "#FF5555",
+            "accent_color": "#ff7800",
+            "highlight_base_bg": "#EEEEEE",
+            "highlight_text_bg": "#DDDDDD",
+            "highlight_text_fg": "#000000",
+            "comment_color": "#813d9c"
+        }
+    }
+}

@@ -1,0 +1,207 @@
+{
+    "info": {
+        "name":    "Deutsch (Deutschland)",
+        "version": "1.0",
+        "authors": ["Blyfh", "Etienne Seet"]
+    },
+    "file_mng": {
+        "AsmFiles": "Assembler-Dateien",
+        "TxtFiles": "Textdateien",
+
+        "UnsavedChanges": "Ungespeicherte Änderungen",
+        "Save?":          "Programm vor Schließen speichern?",
+
+        "OpenFile": "Datei Öffnen",
+        "SaveFile": "Datei Speichern"
+    },
+    "gui": {
+        "title":   "Assemblitor",
+        "minsize": (637, 500),
+
+        "File":    "Datei",
+        "New":     "Neu",
+        "Open":    "Öffnen",
+        "Reload":  "Neu laden",
+        "Save":    "Speichern",
+        "SaveAs":  "Speichern unter",
+        "Options": "Einstellungen",
+        "Exit":    "Beenden",
+
+        "Help":      "Hilfe",
+        "ShowLangPack": "Sprachdatei anzeigen",
+        "Assembly":  "Assembly",
+        "Shortcuts": "Tastenkombinationen",
+        "DemoPrg":   "Demo-Programm",
+        "About":     "Über",
+
+        "RunPrg":       "Programm ausführen",
+        "RunStep":      "Einzelnen Schritt ausführen",
+        "IncrAdrs":     "Markierte Adressen erhöhen",
+        "DecrAdrs":     "Markierte Adressen vermindern",
+        "IncrAdrsOprs": "Markierte Adressen und Operanden erhöhen",
+        "DecrAdrsOprs": "Markierte Adressen und Operanden vermindern",
+        "IncrOprs":     "Markierte Operanden erhöhen",
+        "DecrOprs":     "Markierte Operanden vermindern",
+        "ChngOptions":  {"adr": "Adressen", "adr_opr": "Adressen & Operanden", "opr": "Operanden"},
+        "Stacktrace":   "Stacktrace",
+
+        "PC:":  "Befehlszähler:",
+        "ACC:": "Akkumulator:",
+        "IR:":  "Befehlsregister:"
+    },
+    "opt_win": {
+        "title":    "Einstellungen",
+        "geometry": "450x500",
+
+        "Appearance": "Erscheinungsbild",
+        "LightTheme": "Helles Thema",
+        "Language":   "Sprache",
+        "EditorFont": "Editor-Schriftart",
+        "Colors":     "Farben",
+        "PickColor":  "Wählen",
+        "ColorLabels": {
+            "base_bg": "Basis-Hintergrund",
+            "base_fg": "Basis-Vordergrund",
+            "text_bg": "Text-Hintergrund",
+            "text_fg": "Text-Vordergrund",
+            "cursor_color": "Cursor-Farbe",
+            "error_color": "Fehlerfarbe",
+            "accent_color": "Akzentfarbe",
+            "highlight_base_bg": "Highlight-Grund",
+            "highlight_text_bg": "Highlight-Text-Hintergrund",
+            "highlight_text_fg": "Highlight-Text-Farbe",
+            "comment_color": "Kommentarfarbe"
+        },
+
+        "Assembler": "Assembler",
+        "MinAdrLen": "Mindestanzahl an Ziffern",
+        "MaxCels":   "Maximale Programmlänge",
+        "MaxJmps":   "Maximale Iterationstiefe",
+        "AutoShiftAddresses": "Adressen beim Einfügen/Löschen automatisch verschieben",
+        "AutoShiftAddressesTip": "Folgende Adressen werden automatisch angepasst beim Einfügen oder Löschen von Zeilen",
+
+        "File":                  "Datei",
+        "ClosingUnsaved":        "Beim Schließen von ungespeichertem Programm",
+        "ClosingUnsavedOptions": {"ask": "Fragen", "save": "Immer speichern", "discard": "Immer verwerfen"},
+
+        "Advanced": "Erweiterte Einstellungen",
+        "DevMode":  "Entwicklermodus",
+        "DevModeTip": "Zeigt kompletten Traceback, stellt interne Fehler vollständig dar, gibt Fehler in Konsole aus, verwirft immer ungespeichertes beim Schließen",
+
+        "RestartRequired": "Assemblitor-Neustart notwendig, um Änderungen vollständig zu übernehmen",
+
+        "Cancel":  "Abbrechen",
+        "Apply":   "Übernehmen",
+        "Ok":      "OK",
+        "Restart": "Neustarten",
+        "Reset":   "Zurücksetzen"
+    },
+    "asm_win": {
+        "title":   "Assembly",
+        "minsize": (810, 200),
+
+        "text":  """Dieser Assembly-Dialekt ist eine spaltenbasierte Low-Level-Programmiersprache, welche sehr nah an Maschinencode ist. Groß-/Kleinschreibung wird nicht beachtet.
+
+Die Sprache besteht aus einer Folge von Speicherzellen, welche Befehle oder Zahlenwerte speichern können. Jede Speicherzelle beginnt mit ihrer Adresse und endet mit einem Zeilenumbruch. Die Speicherzellen müssen in aufsteigender Reihenfolge sein, aber leere Zellen müssen nicht angegeben werden. Ein Zahlenwert ist immer eine Ganzzahl und wird nach der Adresse gespeichert. Eine leere Speicherzelle wird als eine Zelle mit einem Zahlenwert von 0 interpretiert. Ein Befehl wird auch nach der Adresse angegeben, wobei die meisten noch einen Operanden benötigen.
+Kommentare können mit einem Semikolon gemacht werden. Jeglicher Text zwischen dem Semikolon und dem nächsten Zeilenumbruch wird ignoriert.
+
+Das Programm orientiert sich an der Architektur eines Von-Neumann-Prozessors. Das bedeutet, dass ein Befehlszähler (BZ), ein Zwischenspeicher (genannt Akkumulator oder kurz AKKU) und ein Befehlsregister (BR) benutzt werden. Zu Beginn ist der BZ auf 0 gesetzt. Wird das Programm ausgeführt, so wird der Befehl an der im BZ gespeicherten Adresse in das BR geladen. Dort wird der Befehl ausgeführt und der BZ um eins erhöht (außer bei Sprüngen und Stopps), sodass der nächste Befehl geladen werden kann.
+
+
+Ein einfaches Programm könnte so aussehen:
+{    00 LDA #4 ; lade den Zahlenwert 4 in den AKKU
+    01 STA 04 ; speichere des AKKUs Zahlenwert in die 4. Speicherzelle
+    02 STP    ; stoppe das Programm
+}
+So sieht das Ergebnis nach dem Ausführen des Programms aus:
+{    00 LDA #4
+    01 STA 04
+    02 STP
+    04 4      ; ein gespeicherter Zahlenwert
+}
+
+Eine Liste aller akzeptierten Befehle:
+    {STP    } stoppt das Programm
+    {LDA n  } lädt den Zahlenwert der Speicherzelle n in den AKKU
+    {LDA #n } lädt den Zahlenwert n in den AKKU
+    {LDA (n)} lädt den Zahlenwert der Speicherzelle, dessen Adresse in Speicherzelle n gespeichert ist, in den AKKU
+    {STA n  } speichert den im AKKU gespeicherten Zahlenwert in Speicherzelle n
+    {ADD n  } speichert die Summe der Zahlenwerte des AKKUs und der Speicherzelle n in den AKKU
+    {ADD #n } speichert die Summe der Zahlenwerte des AKKUs und n in den AKKU
+    {ADD (n)} speichert die Summe der Zahlenwerte des AKKUs und der Speicherzelle, dessen Adresse in Speicherzelle n gespeichert
+    {       } ist, in den AKKU
+    {SUB n  } speichert die Differenz der Zahlenwerte des AKKUs und der Speicherzelle n in den AKKU
+    {SUB #n } speichert die Differenz der Zahlenwerte des AKKUs und n in den AKKU
+    {SUB (n)} speichert die Differenz der Zahlenwerte des AKKUs und der Speicherzelle, dessen Adresse in Speicherzelle n gespeichert
+    {       } ist, in den AKKU
+    {MUL n  } speichert das Produkt der Zahlenwerte des AKKUs und der Speicherzelle n in den AKKU
+    {MUL #n } speichert das Produkt der Zahlenwerte des AKKUs und n in den AKKU
+    {MUL (n)} speichert das Produkt der Zahlenwerte des AKKUs und der Speicherzelle, dessen Adresse in Speicherzelle n gespeichert
+    {       } ist, in den AKKU
+    {DIV n  } speichert das Ergebnis der Ganzzahldivision des AKKUs durch den Zahlenwert der Speicherzelle n in den AKKU
+    {DIV #n } speichert das Ergebnis der Ganzzahldivision des AKKUs durch n in den AKKU
+    {DIV (n)} speichert das Ergebnis der Ganzzahldivision des AKKUs durch den Zahlenwert der Speicherzelle, dessen Adresse in Speicherzelle n gespeichert
+    {       } ist, in den AKKU
+    {JMP n  } springt zu Speicherzelle n indem der BZ auf n gesetzt wird
+    {JZE n  } springt zu Speicherzelle n indem der BZ auf n gesetzt wird wenn der im AKKU gespeicherte Zahlenwert 0 ist
+    {JLE n  } springt zu Speicherzelle n indem der BZ auf n gesetzt wird wenn der im AKKU gespeicherte Zahlenwert kleiner oder gleich
+    {       } 0 ist
+    {JNZ n  } springt zu Speicherzelle n indem der BZ auf n gesetzt wird wenn der im AKKU gespeicherte Zahlenwert nicht 0 ist"""
+    },
+    "shc_win": {
+        "title":    "Tastenkombinationen",
+        "geometry": "320x241",
+
+        "combos": """F5
+Shift + F5
+Ctrl + Z
+Ctrl + Shift + Z
+Ctrl + Y
+Ctrl + Backspace
+Shift + Enter
+Shift + Tab
+Shift + Hochscrollen
+Shift + Runterscrollen
+Ctrl + N
+Ctrl + O
+Ctrl + R
+Ctrl + S
+Ctrl + Shift + S""",
+
+        "actions": """Programm ausführen
+Einzelnen Schritt ausführen
+Änderung rückgängig machen
+Änderung wiederherstellen
+Änderung wiederherstellen
+Ganzes Wort löschen
+Adressloser Zeilenumbruch
+Betroffene Zahlen umstellen
+Betroffene Zahlen inkrementieren
+Betroffene Zahlen dekrementieren
+Neue Datei
+Datei öffnen
+Datei neu laden
+Datei speichern
+Datei speichern unter"""
+    },
+    "abt_win": {
+        "title":    "Über",
+        "geometry": "410x170",
+
+        "text": """Ein simpler Emulator und Editor für Assembly
+Version: 0.2.1 Beta
+2022/23 von Blyfh erstellt
+
+Bug gefunden? Benachrichtige mich unter
+https://github.com/Blyfh/assemblitor/issues/new"""
+    },
+    "demo": """; Ein einfaches Countdown-Programm
+00 JMP 02
+01 5
+02 LDA 01
+03 SUB #1
+04 JLE 07
+05 STA 01
+06 JMP 03
+07 STP"""
+}
